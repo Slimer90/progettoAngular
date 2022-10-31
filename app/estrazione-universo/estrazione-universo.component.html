@@ -1,0 +1,133 @@
+<div class="container-fluid">
+
+  <ngb-alert [type]="typeMessage" [dismissible]="false" *ngIf="message">
+    <strong>
+      <i class="fa fa-exclamation-triangle" style="margin-right: 10px"></i>
+    </strong>{{message}}
+  </ngb-alert>
+
+
+  <div class="card"> 
+
+    <div class="card-header">Inserisci i parametri di estrazione</div>
+
+    <form #formEstrazione="ngForm" (ngSubmit)="estraiUniverso(formEstrazione.value)">
+      <div class="form-row" style="padding:10px">
+
+        <div class="col-sm-12 col-md-3 col-lg-3 ">
+          <label for="tipoUniverso">
+            Tipologia:<sup class="text-danger"
+                           [style.font-size]="'15px'"
+                           [style.font-weight]="'bold'">*</sup>
+          </label>
+          <select class="form-control"
+                  [(ngModel)]="tipologiaSelezionata"
+                  id="tipoUniverso"
+                  name="tipologiaUniverso"
+                  required >
+            <option *ngFor="let x of tipologieUniverso" [value]="x.code" style="max-width:200px">
+              {{x.label}}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6 " *ngIf="tipologiaSelezionata != '5'" >
+          <label for="idTrimestre">
+            Trimestre:<sup class="text-danger"
+                                [style.font-size]="'15px'"
+                                [style.font-weight]="'bold'">*</sup>
+          </label>
+          <select class="form-control"
+                  ngModel
+                  id="idTrimestre"
+                  name="trimestre"
+                  required>
+            <option *ngFor="let x of elencoTrimestri" [value]="x.schedeId" style="max-width:200px">
+              {{x.schedeId}} - {{x.titolo}}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6 "  *ngIf="tipologiaSelezionata == '5'">
+          <label for="idAnno">
+            Anno:<sup class="text-danger"
+                                [style.font-size]="'15px'"
+                                [style.font-weight]="'bold'">*</sup>
+          </label>
+          <select class="form-control"
+                  ngModel
+                  id="idAnno"
+                  name="trimestre"
+                  required>
+            <option *ngFor="let x of elencoAnni" [value]="x.idTrimestre" style="max-width:200px">
+              {{x.anno}}
+            </option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="card-footer" *ngIf="!universoEstratto">
+        <button type="submit" class="btn btn-danger" [disabled]="formEstrazione.invalid">
+          <i class="fa fa-share-square-o" style="margin-right: 10px"></i>
+          Estrai Universo
+        </button>
+
+      </div>
+    </form>
+
+    <div class="card" *ngIf="universoEstratto">
+      <ngb-alert type="info" [dismissible]="false">
+        <strong>
+          <i class="fa fa-info-circle" style="margin-right: 10px"></i>
+        </strong>Estrazione conclusa!
+      </ngb-alert>
+
+      <div class="form-row" style="padding:10px">
+        <h4>Identificativo universo {{universoEstratto.id}}</h4>
+      </div>
+
+      <div class="form-row" style="padding:10px">
+        <h6 *ngIf="universoEstratto.tipoUniverso === 2">
+          Estratte {{universoEstratto.totaleRigheEstratte}} righe, di
+          cui {{universoEstratto.contatoreClasse1}} con clase rischio 1,  {{universoEstratto.contatoreClasse2}} con
+          classe di rischio 2 e  {{universoEstratto.contatoreClasse3}} con classe di rischio 3.
+        </h6>
+        <h6 *ngIf="universoEstratto.tipoUniverso !== 2">
+          Estratte {{universoEstratto.totaleRigheEstratte}} righe.
+        </h6>
+      </div>
+
+      <div class="form-row" style="padding:10px">
+
+        <div class="col-sm-6 col-md-4 col-lg-4">
+          <label>Totale importo Giustificativo</label>
+          <input type="text" placeholder="{{universoEstratto.totImpoGiustificativo | numberit}} €" class="form-control"
+                 disabled style="text-align: right"/>
+        </div>
+
+        <div class="col-sm-6 col-md-4 col-lg-4">
+          <label>Totale importo validato (Ente)</label>
+          <input type="text" class="form-control" disabled placeholder="{{universoEstratto.totImpoValEnte |numberit}} €"
+                 style="text-align: right"/>
+        </div>
+
+        <div class="col-sm-6 col-md-3 col-lg-3">
+          <label>Totale importo validato (OI)</label>
+          <input type="text" placeholder="{{universoEstratto.totImpoValOi |numberit}} €" class="form-control"
+                 disabled style="text-align: right"/>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button class="btn btn-primary" (click)="nuovaEstrazione()">
+          <i class="fa fa-plus" style="margin-right: 10px"></i>
+          Nuova estrazione
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

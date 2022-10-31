@@ -1,0 +1,172 @@
+<header>
+  <app-header></app-header>
+</header>
+
+<ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="ball-scale-multiple">
+  <p style="font-size: 20px; color: white">Attendere...</p>
+</ngx-spinner>
+
+<ngb-alert type="danger" [dismissible]="false" *ngIf="message">
+  <strong>
+    <i class="fa fa-exclamation-triangle" style="margin-right: 10px"></i>
+  </strong>{{message}}
+</ngb-alert>
+
+<div class="main container-fluid">
+
+  <div class="row" style=" width: 100%;">
+
+    <div class="xl-max-menu col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12" *ngIf="isUserLogged()"
+         style="border-right: 2px solid red; padding-left: 0;  padding-right: 0; ">
+
+      <ul class="list-group">
+
+        <li class="list-group-item d-flex justify-content-between align-items-center"
+            style="background-color:transparent; border: 0">
+          <div class="form-row" style="border-bottom: 0">
+
+            <div class="col-sm-12 ">
+              <div class="col-sm-3" style="float:left">
+                          <span style="border-radius:2px;">
+                            <i class="fa fa-user"
+                               style="float: left; margin-right: 10px; font-size: 300%; margin-top:0;color: navy"></i>
+                          </span>
+              </div>
+              <div class="col-sm-6" style="float:left">
+                <span style="border-radius:2px;">
+                  <i style="float: left; margin-right: 10px; font-size: 18px; margin-top:0;color: navy">
+                    {{nomeUtente}}
+                  </i>
+                </span>
+              </div>
+
+              <div class="col-sm-12">
+
+                <i style="font-size: 14px; margin-top:0;color: red"> {{profilo}}</i>
+
+              </div>
+
+            </div>
+          </div>
+        </li>
+
+        <li class="list-group-item d-flex justify-content-between align-items-center"
+            style="background-color:transparent;;border:0">
+
+          <button type="button" class="btn btn-danger" (click)="logout()" style="width: 100%; ">
+            <i class="fa fa-sign-out"> Logout</i>
+          </button>
+
+        </li>
+
+        <ng-template [ngIf]="isUserAuthorized() && !isProfiloAdg()">
+          <li class="list-group-item d-flex justify-content-between align-items-center"
+              style="border:0;margin-top:10px">
+            <button type="button"
+                    class="btn btn-danger"
+                    [style.width]="'100%'"
+                    [routerLink]="['estrazione']"
+                    [routerLinkActive]="'active'">
+              <i class="fa fa-share-square-o" style="float: left; margin-right: 10px"></i>
+              Estrai universo
+            </button>
+          </li>
+
+          <li class="list-group-item  justify-content-between align-items-center" style="border:0">
+            <button type="button"
+                    class="btn btn-danger"
+                    [style.width]="'100%'"
+                    [routerLink]="['completauniverso', 'manuale']"
+                    [routerLinkActive]="'active'">
+              <i class="fa fa-edit" style="float: left; margin-right: 10px"></i>
+              Gestione universo
+            </button>
+          </li>
+
+          <li class="list-group-item d-flex justify-content-between align-items-center" style="border:0">
+            <button type="button"
+                    class="btn btn-danger"
+                    [style.width]="'100%'"
+                    [routerLink]="['estrazionecampione', 'definiscicriteri']"
+                    [routerLinkActive]="'active'">
+              <i class="fa fa-cogs" style="float: left; margin-right: 10px"></i>
+              Crea campione
+            </button>
+          </li>
+        </ng-template>
+
+        <li class="list-group-item d-flex justify-content-between align-items-center" style="border:0"
+            *ngIf="isUserAuthorized() ">
+          <button type="button"
+                  class="btn btn-danger"
+                  [style.width]="'100%'"
+                  [routerLink]="['estrazionecampione', 'estrairighe']"
+                  [routerLinkActive]="'active'">
+            <i class="fa fa-filter" style="float: left; margin-right: 10px"></i>
+            Gestione campione
+          </button>
+        </li>
+
+        <li class="list-group-item  justify-content-between align-items-center" style="border:0"
+            *ngIf="isUserAuthorized() && !isProfiloAdg()">
+          <button type="button"
+                  class="btn btn-danger"
+                  [style.width]="'100%'"
+                  [routerLink]="['completacampione', 'corrente']"
+                  [routerLinkActive]="'active'">
+            <i class="fa fa-edit" style="float: left; margin-right: 10px"></i>
+            Completa campione
+          </button>
+        </li>
+
+        <li class="list-group-item  justify-content-between align-items-center" style="border:0"
+            *ngIf="isUserAuthorized()">
+          <button type="button"
+                  class="btn btn-danger"
+                  [style.width]="'100%'"
+                  [routerLink]="['risultanze']"
+                  [routerLinkActive]="'active'">
+            <i class="fa fa-file-text-o" style="float: left; margin-right: 10px"></i>
+            Risultanze
+          </button>
+        </li>
+
+        <li class="list-group-item d-flex justify-content-between align-items-center" style="border:0"
+            *ngIf="isUserAuthorized() && isProfiloAdg()">
+          <button type="button"
+                  class="btn btn-danger"
+                  [style.width]="'100%'"
+                  [routerLink]="['parametri']"
+                  [routerLinkActive]="'active'">
+            <i class="fa fa-cogs" style="float: left; margin-right: 10px"></i>
+            Gestione parametri
+          </button>
+        </li>
+
+        <li class="list-group-item d-flex justify-content-between align-items-center" style="border:0"
+            *ngIf="isUserAuthorized()">
+          <button type="button"
+                  class="btn btn-danger"
+                  [style.width]="'100%'"
+                  [routerLink]="['profilo']"
+                  [routerLinkActive]="'active'">
+            <i class="fa fa-user" style="float: left; margin-right: 10px"></i>
+            Cambia profilo
+          </button>
+        </li>
+
+      </ul>
+    </div>
+
+    <div
+      [ngClass]="{'xl-max-content col-xl-9 col-lg-9 col-md-6 col-sm-12 col-xs-12' : isUserLogged(),
+                  'col-lg-12 col-md-12 col-sm-12 col-xs-12' : !isUserLogged()}"
+      style="height: 100%; float:left; padding-left: 0; padding-right: 0; max-width: 100%; width: 100%; flex: 100;">
+
+      <router-outlet></router-outlet>
+
+    </div>
+
+  </div>
+
+</div>

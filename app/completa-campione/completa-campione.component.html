@@ -1,0 +1,154 @@
+<div class="container-fluid">
+
+  <ngb-alert [type]="typeError" [dismissible]="false" *ngIf="message">
+    <strong>
+      <i class="fa fa-exclamation-triangle" style="margin-right: 10px"></i>
+    </strong>{{message}}
+  </ngb-alert>
+
+
+  <div class="card" *ngIf="(contesto === 'corrente') || (contesto === 'pregresso' && !campioneSelezionato)">
+
+
+    <div class="card-header">Inserisci i parametri di ricerca di un campione APERTO da completare</div>
+    <div class="form-row" style="padding: 10px">
+
+
+      <div class="col-sm-12 col-md-3 col-lg-3 ">
+        <label>Tipologia universo:</label>
+        <select class="form-control" [(ngModel)]="tipologiaUniverso">
+          <option *ngFor="let x of getTipologieUniverso()" [ngValue]="x.code" style="max-width:200px"> {{x.label}}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-sm-12 col-md-5 col-lg-5 " *ngIf="tipologiaUniverso != '5'">
+        <label>Trimestre:</label>
+        <select class="form-control" [(ngModel)]="trimestre">
+          <option *ngFor="let x of elencoTrimestri" [ngValue]="x.schedeId" style="max-width:200px">{{x.schedeId}}
+            - {{x.titolo}}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-sm-12 col-md-6 col-lg-6 " *ngIf="tipologiaUniverso == '5'">
+        <label for="idTrimestre">
+          Anno:
+        </label>
+        <select class="form-control" [(ngModel)]="trimestre">
+          <option *ngFor="let x of elencoAnni" [value]="x.idTrimestre" style="max-width:200px">
+            {{x.anno}}
+          </option>
+        </select>
+       
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 " *ngIf="listCampioni && listCampioni.length>0">
+        <label>Campione*</label>
+        <select class="form-control" [(ngModel)]="idCampioneSelezionato">
+          <option *ngFor="let x of listCampioni" [ngValue]="x.id" style="max-width:200px">
+            Campione num. {{x.id}} - {{decodificaTipoUniverso(x.universo.tipoUniverso)}}
+          </option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="card-header" *ngIf="listCampioni && listCampioni.length>0">Inserisci i filtri sulle righe universo</div>
+    <div class="form-row" *ngIf="listCampioni && listCampioni.length>0" style="padding: 10px">
+
+      <div class="col-sm-12 col-md-3 col-lg-3 ">
+        <label>Piva Ente</label>
+        <input type="text" [(ngModel)]="pivaRicerca" class="form-control">
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3 ">
+        <label>Denominazione Ente</label>
+        <input type="text" [(ngModel)]="denomEnteRicerca" class="form-control">
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3 ">
+        <label>Codice Progetto</label>
+        <input type="number" [(ngModel)]="progettoRicerca" class="form-control" numbersOnly>
+      </div>
+
+    </div>
+
+    <div class="card-footer">
+      <button class="btn btn-primary" (click)="cercaCampione(true)" style="margin-right: 10px">
+        <i class="fa fa-search" style="margin-right: 10px"></i>
+        Ricerca campione da completare
+      </button>
+
+      <button class="btn btn-danger" *ngIf="listCampioni && listCampioni.length>0"
+              (click)="confermaCompletaCampione(contesto === 'corrente')">
+        <i class="fa fa-check" style="margin-right: 10px"></i>
+        Carica righe non campionate
+      </button>
+
+      <button class="btn btn-primary"
+              *ngIf="righeCompletaCampione && righeCompletaCampione.length>0 && contesto === 'corrente'"
+              style="margin-left: 10px" (click)="confirmAggiungiAlCampione()">
+        <i class="fa fa-plus" style="margin-right: 10px"></i>
+        Aggiungi righe selezionate
+      </button>
+
+    </div>
+  </div>
+
+
+  <div class="card" *ngIf="righeCompletaCampione && righeCompletaCampione.length>0 && contesto === 'corrente'">
+    <div class="card-header" style="text-align: center">
+      <strong>Righe universo trovate</strong>
+    </div>
+
+
+    <table class="table table-hover table-striped" [mfData]="righeCompletaCampione"
+           #mf="mfDataTable" [mfRowsOnPage]="5">
+      <thead>
+      <tr>
+        <th>Seleziona</th>
+        <th>Id Giustificativo/Movimento</th>
+        <th>Tipo Giustificativo</th>
+
+        <th>Progetto</th>
+        <th>Importo validato (Ente)</th>
+        <th>Importo giustificativo</th>
+        <th>Importo validato (OI)</th>
+        <th>Ente</th>
+        <th>Codice rischio</th>
+        <th>Dimensione intervento</th>
+
+      </tr>
+      <!--   <th>Aggiungi al campione</th>-->
+      </thead>
+      <tbody>
+      <tr *ngFor="let x of mf.data">
+        <td>
+          <input type="checkbox" [(ngModel)]="x.selected" style="zoom: 2;">
+        </td>
+        <td>{{x.idGiustificativo}}/{{x.idMovimento}}</td>
+        <td>{{x.tipoGiustificativo}}</td>
+
+        <td>{{x.idProgetto}}</td>
+        <td>{{x.importoValEnte | numberit}} €</td>
+        <td>{{x.importoGiustificativo | numberit}} €</td>
+        <td>{{x.importoValOi | numberit}} €</td>
+        <td>{{x.denominazioneEnte}} - {{x.piva}}</td>
+        <td>{{x.sedeSvolgimento}}</td>
+        <td>{{x.codiceRischio}}</td>
+        <td>{{x.dimensioneIntervento}}</td>
+
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <td colspan="9">
+          <mfBootstrapPaginator [rowsOnPageSet]="[5,10,25]"></mfBootstrapPaginator>
+        </td>
+      </tr>
+      </tfoot>
+    </table>
+  </div>
+
+</div>

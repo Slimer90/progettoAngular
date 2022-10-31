@@ -1,0 +1,43 @@
+/* You can add global styles to this file, and also import other style files */
+
+@font-face {
+    font-family: 'Oswald';
+    src: url('./assets/fonts/oswald-regular.woff2?#iefix') format('woff2'),
+         url('./assets/fonts/oswald-regular.woff') format('woff'),
+         url('./assets/fonts/oswald-regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* titillium-web-regular - latin */
+@font-face {
+    font-family: 'Titillium Web';
+    font-style: normal;
+    font-weight: 400;
+    src: url('./assets/fonts/titillium-web-v6-latin-regular.eot'); /* IE9 Compat Modes */
+    src: local('Titillium Web Regular'), local('TitilliumWeb-Regular'),
+         url('./assets/fonts/titillium-web-v6-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('./assets/fonts/titillium-web-v6-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+         url('./assets/fonts/titillium-web-v6-latin-regular.woff') format('woff'), /* Modern Browsers */
+         url('./assets/fonts/titillium-web-v6-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+         url('./assets/fonts/titillium-web-v6-latin-regular.svg#TitilliumWeb') format('svg'); /* Legacy iOS */
+  }
+
+
+  .btn-clicked{
+      background-color: #5c060e;
+      border-color: #5c060e;
+      /*background-color: navy;
+      border-color: navy;*/
+      color: white;
+  }
+
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0,0,0,.5);
+  -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}

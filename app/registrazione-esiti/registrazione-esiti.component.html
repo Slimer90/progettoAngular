@@ -1,0 +1,216 @@
+<div class="container-fluid">
+
+  <ngb-alert [type]="typeError" [dismissible]="false" *ngIf="message">
+    <strong>
+      <i class="fa fa-exclamation-triangle" style="margin-right: 10px"></i>
+    </strong>{{message}}
+  </ngb-alert>
+
+  <app-ricerca-campione [contesto]=contesto (emitEsiti)="getListaCampioni($event)"></app-ricerca-campione>
+
+  <div class="card" *ngIf="listCampioni && listCampioni.length>0 && !campioneSelezionato">
+    <div class="card-header">Righe trovate</div>
+
+
+    <table class="table table-hover table-striped" [mfData]="listCampioni"
+           #mf="mfDataTable" [mfRowsOnPage]="5">
+      <thead>
+      <th>Id</th>
+      <th>Tipo Universo</th>
+      <th>Stato</th>
+      <th>Dal</th>
+      <th>Al</th>
+      <th>Data creazione</th>
+      <th>Righe</th>
+      <th>Righe senza esito</th>
+      <th>Righe esito OK</th>
+      <th>Righe esito KO</th>
+      <th>Righe Prescrizione</th>
+      <th>Importo validato</th>
+      <th></th>
+      </thead>
+      <tbody>
+      <tr *ngFor="let x of mf.data">
+        <td>{{x.id}}</td>
+        <td>{{x.universo.tipoUniverso}}</td>
+        <td>{{x.stato}}</td>
+        <td>{{x.dataDal | date: 'dd/MM/yyyy'}}</td>
+        <td>{{x.dataAl | date: 'dd/MM/yyyy'}}</td>
+        <td>{{x.dataEstrazione | date: 'dd/MM/yyyy'}}</td>
+        <td>{{x.totRigheCampione}}</td>
+        <td>{{x.totSenzaEsito}}</td>
+        <td>{{x.totEsitoOk}}</td>
+        <td>{{x.totEsitoKo}}</td>
+        <td>{{x.totEsitoPr}}</td>
+        <td>{{x.totImpValente | numberit | currency: '€ '}}</td>
+        <td>
+          <button class="btn btn-danger" (click)="riapriCampione(x)" *ngIf="x.stato === 'CH'" title="Riapri Campione">
+            <i class="fa fa-edit"></i>
+          </button>
+
+          <button class="btn btn-primary" (click)="acquisisciEsito(x)" *ngIf="x.stato === 'AP'"
+                  title="Acquisisci esito">
+            <i class="fa fa-share-square-o"></i>
+          </button>
+        </td>
+
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <td colspan="9">
+          <mfBootstrapPaginator [rowsOnPageSet]="[5,10,25]"></mfBootstrapPaginator>
+        </td>
+      </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="card" *ngIf="campioneSelezionato && !rigaSelezionata">
+          <span style="padding: 10px">
+            <button class="btn btn-primary" style="float: right;" (click)="tornaPaginaIniziale()">
+              <i class="fa fa-arrow-left" style="margin-right: 10px"></i>Indietro
+            </button>
+          </span>
+    <div class="card-header" style="text-align: center"><strong>Righe estratte dal Campione
+      num. {{campioneSelezionato.id}}</strong></div>
+
+    <table class="table table-hover table-striped" [mfData]="listRigheCampione"
+           #mf="mfDataTable" [mfRowsOnPage]="5">
+      <thead>
+      <tr>
+        <th>Id Progetto</th>
+        <th>Denominazione Ente</th>
+        <!--        <th>Sede svolgimento</th>-->
+        <th>Id giustificativo</th>
+        <th>Importo giustificativo</th>
+        <th>Importo validato (OI)</th>
+        <!--           <th>Classe sede</th>
+                   <th>Codice rischio gestionale</th>
+                   <th>Dimensione intervento</th>-->
+        <th>Probabilità</th>
+        <th>Aggiunto manualmente</th>
+        <th>Modifica</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let x of mf.data">
+        <td>{{x.idProgetto}}</td>
+        <td>{{x.denominazioneEnte}}</td>
+        <!--         <td>{{x.sedeSvolgimento}}</td>-->
+        <td>{{x.idGiustificativo}}</td>
+        <td>{{x.importoGiustificativo | currency: '€ ' }}</td>
+        <td>{{x.importoValOi | currency: '€ '}}</td>
+        <!--         <td>{{x.classeSede}}</td>
+             <td>{{x.codiceRischio}}</td>
+             <td>{{x.dimensioneIntervento}}</td>-->
+        <td>{{x.probabilita}}</td>
+        <td>{{x.flgManuale === 1 ? 'SI' : 'NO'}}</td>
+        <td>
+          <button class="btn btn-danger" (click)="dettaglioRiga(x)">
+            <i class="fa fa-edit"></i>
+          </button>
+        </td>
+
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <td colspan="12">
+          <mfBootstrapPaginator [rowsOnPageSet]="[5,10,25]"></mfBootstrapPaginator>
+        </td>
+      </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="card" *ngIf="campioneSelezionato && rigaSelezionata">
+    <div class="card-header" style="text-align: center"><strong>Modifica riga num. {{rigaSelezionata.id}}</strong></div>
+
+    <div class="form-row" style="padding: 10px">
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Data controllo</label>
+        <input type="date" [(ngModel)]="rigaSelezionata.dataControllo" class="form-control">
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Esito</label>
+        <select class="form-control" [(ngModel)]="rigaSelezionata.esitoControllo">
+          <option *ngFor="let x of getEsito()" [ngValue]="x.code">{{x.label}}
+
+          </option>
+        </select>
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Note</label>
+        <input class="form-control" [(ngModel)]="rigaSelezionata.prescrizione">
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Id Progetto</label>
+        <input class="form-control" [(ngModel)]="rigaSelezionata.idProgetto" disabled>
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Denominazione ente</label>
+        <input class="form-control" [(ngModel)]="rigaSelezionata.denominazioneEnte" disabled>
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Sede svolgimento</label>
+        <input class="form-control" [(ngModel)]="rigaSelezionata.sedeSvolgimento" disabled>
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Id Giustificativo</label>
+        <input class="form-control" [(ngModel)]="rigaSelezionata.idGiustificativo" disabled>
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Importo giustificativo</label>
+        <input class="form-control" [(ngModel)]="rigaSelezionata.importoGiustificativo" disabled>
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Importo validato (OI)</label>
+        <input class="form-control" [(ngModel)]="rigaSelezionata.importoValOi" disabled>
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Classe sede</label>
+        <input class="form-control" [(ngModel)]="rigaSelezionata.classeSede" disabled>
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Codice rischio</label>
+        <input class="form-control" [(ngModel)]="rigaSelezionata.codiceRischio" disabled>
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Dimensione intervento</label>
+        <input class="form-control" [(ngModel)]="rigaSelezionata.dimensioneIntervento" disabled>
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 ">
+        <label>Probabilità</label>
+        <input class="form-control" [(ngModel)]="rigaSelezionata.probabilita" disabled>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <button class="btn btn-danger" style="float: left;" (click)="salvaRiga()">
+        <i class="fa fa-save" style="margin-right: 10px"></i>
+          Salva
+      </button>
+
+      <button class="btn btn-primary" style="float: right;;" (click)="tornaElencoRighe()">
+        <i class="fa fa-times" style="margin-right: 10px"></i>
+          Annulla
+      </button>
+
+    </div>
+  </div>
+
+</div>

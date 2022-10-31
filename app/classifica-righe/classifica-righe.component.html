@@ -1,0 +1,374 @@
+<app-generic-message></app-generic-message>
+
+<div class="container-fluid">
+
+  <ngb-alert [type]="typeError" [dismissible]="false" *ngIf="message">
+    <strong>
+      <i class="fa fa-exclamation-triangle" style="margin-right: 10px"></i>
+    </strong>
+    {{message}}
+  </ngb-alert>
+
+  <div class="card" *ngIf="!rigaSelezionata">
+    <div class="card-header">
+      Inserisci i parametri
+    </div>
+
+    <form [formGroup]="formRicercaUniverso" (ngSubmit)="ricercaUniverso()">
+      <div class="form-row" style="padding:10px">
+
+        <div class="col-sm-12 col-md-3 col-lg-3 ">
+          <label for="tipoUniverso">
+            Tipologia:<sup class="text-danger"
+                           [style.font-size]="'15px'"
+                           [style.font-weight]="'bold'">*</sup>
+          </label>
+          <select class="form-control" [(ngModel)]="tipologiaSelezionata"
+                  [formControlName]="'tipologiaUniverso'"
+                  id="tipoUniverso">
+            <option *ngFor="let x of tipologieUniverso" [ngValue]="x.code" style="max-width:200px">
+              {{x.label}}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6 " *ngIf="tipologiaSelezionata != '5'">
+          <label for="idTrimestre">
+            Trimestre:<sup class="text-danger"
+                           [style.font-size]="'15px'"
+                           [style.font-weight]="'bold'">*</sup>
+          </label>
+          <select class="form-control"
+                  [formControlName]="'trimestre'"
+                  id="idTrimestre">
+            <option *ngFor="let x of elencoTrimestri" [ngValue]="x.schedeId" style="max-width:200px">
+              {{x.schedeId}} - {{x.titolo}}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6 "  *ngIf="tipologiaSelezionata == '5'">
+          <label for="idAnno">
+            Anno:<sup class="text-danger"
+                                [style.font-size]="'15px'"
+                                [style.font-weight]="'bold'">*</sup>
+          </label>
+          <select class="form-control"
+                  id="idAnno"
+                  [formControlName]="'trimestre'"
+                  >
+            <option *ngFor="let x of elencoAnni" [value]="x.idTrimestre" style="max-width:200px">
+              {{x.anno}}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-sm-12 col-md-3 col-lg-3 " *ngIf="listaUniverso != null">
+          <label for="idUniverso">
+            Universo:<sup class="text-danger"
+                          [style.font-size]="'15px'"
+                          [style.font-weight]="'bold'">*</sup>
+          </label>
+          <select class="form-control"
+                  [formControlName]="'universoSelezionato'"
+                  id="idUniverso">
+            <option *ngFor="let x of listaUniverso" [ngValue]="x" style="max-width:200px">Universo {{x.id}}
+            </option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="card-footer">
+        <button class="btn btn-primary" type="submit" style="margin-right: 10px"
+                [disabled]="!(formRicercaUniverso.controls.tipologiaUniverso.valid && formRicercaUniverso.controls.trimestre.valid)"
+                [style.cursor]="!(formRicercaUniverso.controls.tipologiaUniverso.valid && formRicercaUniverso.controls.trimestre.valid) ? 'not-allowed' : 'pointer'">
+          <i class="fa fa-search" style="margin-right: 10px"></i>
+          Ricerca universo
+        </button>
+
+        <button class="btn btn-danger" type="button"
+                *ngIf="listaUniverso != null && contesto === 'manuale'"
+                [disabled]="formRicercaUniverso.invalid"
+                (click)="ricaricaRigheUniverso()">
+          <i class="fa fa-search" style="margin-right: 10px"></i>
+          Carica righe
+        </button>
+      </div>
+    </form>
+
+  </div>
+
+  <div class="card mt-3"
+       *ngIf="listRigheUniverso != null && listRigheUniverso.length > 0 && contesto === 'manuale' && !rigaSelezionata">
+
+    <div class="card-header">
+      <strong style="text-align: center">Trovate {{listRigheUniverso.length}} righe</strong>
+
+      <button class="btn btn-primary shadow ml-3" title="Produci elenco Universo"
+              (click)="produciElenco(tipoElencoEnum.UNIVERSO)"
+              style="background-color: gray;border-color: gray;">
+        <i class="fa fa-file-excel-o"></i>
+      </button>
+
+    </div>
+
+
+    <table class="table table-hover table-striped"
+           *ngIf="!rigaSelezionata"
+           [mfData]="listRigheUniverso"
+           [mfRowsOnPage]="5" #mf="mfDataTable">
+      <thead>
+      <tr>
+        <th>Ente</th>
+        <th>Tipo affidamento</th>
+        <th>Importo giustificativo</th>
+        <th>Importo finanziato</th>
+        <th>Importo validato (Ente)</th>
+        <th>Importo validato (OI)</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let rigaUniverso of mf.data">
+        <td>{{rigaUniverso.denominazioneEnte}} - {{rigaUniverso.piva}}</td>
+        <td>{{rigaUniverso.tipoAffidamento}}</td>
+        <td>{{rigaUniverso.importoGiustificativo | numberit }}  €</td>
+        <td>{{rigaUniverso.importoFinanziato | numberit}}  €</td>
+        <td>{{rigaUniverso.importoValEnte | numberit}}  €</td>
+        <td>{{rigaUniverso.importoValOi | numberit}}  €</td>
+
+        <td>
+          <button class="btn btn-primary" (click)="dettaglioRiga(rigaUniverso)"
+                  *ngIf="formRicercaUniverso.value.universoSelezionato.tipoUniverso === '2' || formRicercaUniverso.value.universoSelezionato.tipoUniverso === '4'">
+            <i class="fa fa-edit"></i>
+          </button>
+
+          <button class="btn btn-primary" (click)="dettaglioRiga(rigaUniverso)"
+                  *ngIf="formRicercaUniverso.value.universoSelezionato.tipoUniverso === '1' || formRicercaUniverso.value.universoSelezionato.tipoUniverso === '3'">
+            <i class="fa fa-search"></i>
+          </button>
+        </td>
+
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <td colspan="7">
+          <mfBootstrapPaginator [rowsOnPageSet]="[5,10,25]"></mfBootstrapPaginator>
+        </td>
+      </tr>
+      </tfoot>
+    </table>
+
+  </div>
+
+  <div class="card" *ngIf="rigaSelezionata">
+
+    <div class="card-header">Riga num. {{rigaSelezionata.id}}</div>
+
+
+    <div class="form-row" style="padding:20px">
+
+
+      <div class="col-sm-12 col-md-3 col-lg-3"
+           *ngIf="formRicercaUniverso.value.universoSelezionato.tipoUniverso === '2' || formRicercaUniverso.value.universoSelezionato.tipoUniverso === '4'">
+        <label for="dimensioneIntervento">
+          Dimensione intervento
+        </label>
+        <select class="form-control"
+                id="dimensioneIntervento"
+                [ngModel]="rigaSelezionata.dimensioneIntervento"
+                (ngModelChange)="changeDimensioneIntervento($event)">
+          <option ngValue="a" style="max-width:200px">alta</option>
+          <option ngValue="b" style="max-width:200px">bassa</option>
+          <option ngValue="m" style="max-width:200px">media</option>
+        </select>
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3"
+           *ngIf="formRicercaUniverso.value.universoSelezionato.tipoUniverso === '2' || formRicercaUniverso.value.universoSelezionato.tipoUniverso === '4'">
+        <label for="codiceRischio">
+          Codice rischio
+        </label>
+        <select class="form-control"
+                id="codiceRischio"
+                [ngModel]="rigaSelezionata.codiceRischio"
+                (ngModelChange)="changeCodiceRischio($event)">
+          <option ngValue="1" style="max-width:200px">1</option>
+          <option ngValue="2" style="max-width:200px">2</option>
+          <option ngValue="3" style="max-width:200px">3</option>
+        </select>
+      </div>
+
+      <div class="col-sm-12 col-md-6 col-lg-6">
+        <label for="denominazioneEnte">
+          Denominazione Ente
+        </label>
+        <input type="text"
+               [value]="rigaSelezionata.denominazioneEnte"
+               readonly
+               id="denominazioneEnte"
+               class="form-control"/>
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3">
+        <label for="piva">Partita iva Ente</label>
+        <input type="text"
+               readonly
+               id="piva"
+               class="form-control"
+               [value]="rigaSelezionata.piva"/>
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3">
+        <label for="tipoAffidamento">
+          Tipo Affidamento
+        </label>
+        <input type="text"
+               id="tipoAffidamento"
+               readonly
+               class="form-control"
+               [value]="rigaSelezionata.tipoAffidamento"/>
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3">
+        <label for="tipoGiustificativo">
+          Tipo Giustificativo
+        </label>
+        <input type="text"
+               id="tipoGiustificativo"
+               readonly
+               class="form-control"
+               [value]="rigaSelezionata.tipoGiustificativo"/>
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3">
+        <label for="codiceVoceSpesa">
+          Codice Voce Spesa
+        </label>
+        <input type="text"
+               readonly
+               id="codiceVoceSpesa"
+               class="form-control"
+               value="{{rigaSelezionata.categoria}}.{{rigaSelezionata.voce}}.{{rigaSelezionata.macrovoce}}.{{rigaSelezionata.sottovoce}}"/>
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3">
+        <label for="dataEstrazione">
+          Data estrazione
+        </label>
+        <input type="text"
+               readonly
+               id="dataEstrazione"
+               class="form-control"
+               [value]="(rigaSelezionata.dataEstrazione | date:'dd/MM/yyyy')"/>
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3">
+        <label for="importoFinanziato">
+          Importo finanziato
+        </label>
+        <input type="text"
+               readonly
+               id="importoFinanziato"
+               class="form-control"
+               value="{{rigaSelezionata.importoFinanziato  | numberit}} €"/>
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3">
+        <label for="importoValidatoEnte">
+          Importo validato (Ente)
+        </label>
+        <input type="text"
+               readonly
+               id="importoValidatoEnte"
+               class="form-control"
+               value="{{rigaSelezionata.importoValEnte  | numberit}} €"/>
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3">
+        <label for="importoGiustificativo">
+          Importo giustificativo
+        </label>
+        <input type="text"
+               readonly
+               id="importoGiustificativo"
+               class="form-control"
+               value="{{rigaSelezionata.importoGiustificativo  | numberit}} €"/>
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3">
+        <label for="importoValidatoOI">
+          Importo validato (OI)
+        </label>
+        <input type="text"
+               readonly
+               id="importoValidatoOI"
+               class="form-control"
+               value="{{rigaSelezionata.importoValOi  | numberit}} €"/>
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3">
+        <label for="asse">
+          Asse
+        </label>
+        <input type="text"
+               id="asse"
+               [value]="rigaSelezionata.asse"
+               readonly
+               class="form-control">
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3">
+        <label for="estremi">
+          Estremi
+        </label>
+        <input type="text"
+               id="estremi"
+               [value]="rigaSelezionata.estremi"
+               readonly
+               class="form-control">
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3">
+        <label for="dataGiustificativo">
+          Data giustificativo
+        </label>
+        <input readonly
+               type="text"
+               class="form-control"
+               id="dataGiustificativo"
+               value="{{rigaSelezionata.dataGiustificativo | date:'dd/MM/yyyy'}}">
+      </div>
+
+      <div class="col-sm-12 col-md-6 col-lg-6">
+        <label for="oggetto">
+          Oggetto
+        </label>
+        <input type="text"
+               id="oggetto"
+               readonly
+               [value]="rigaSelezionata.oggetto"
+               class="form-control">
+      </div>
+
+    </div>
+
+    <div class="card-footer">
+      <button class="btn btn-danger" style="float:left" (click)="salva()"
+              *ngIf="formRicercaUniverso.value.universoSelezionato.tipoUniverso === '2' || formRicercaUniverso.value.universoSelezionato.tipoUniverso === '4'">
+        <i class="fa fa-save" style="margin-right: 10px"></i>
+        Salva
+      </button>
+
+      <button class="btn btn-primary" style="float: right;" (click)="annulla()">
+        <i class="fa fa-times" style="margin-right: 10px"></i>
+        Annulla
+      </button>
+    </div>
+
+  </div>
+
+
+</div>

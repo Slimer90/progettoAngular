@@ -1,0 +1,69 @@
+<div class="card">
+
+  <div class="card-header">Inserisci i parametri di ricerca del campione</div>
+  <form [formGroup]="formRicercCampione" (ngSubmit)="cercaCampione()">
+    <div class="form-row" style="padding: 10px">
+
+      <div class="col-sm-12 col-md-3 col-lg-3 ">
+        <label for="tipoUniverso">
+          Tipologia universo:
+        </label>
+        <select class="form-control"
+                id="tipoUniverso" [(ngModel)]="tipologiaSelezionata"
+                [formControlName]="'tipologiaUniverso'">
+          <option *ngFor="let x of listaTipiUniverso" [ngValue]="x.code" style="max-width:200px">
+            {{x.label}}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-sm-12 col-md-6 col-lg-6 " *ngIf="tipologiaSelezionata != '5'">
+        <label for="idTrimestre">
+          Trimestre:
+        </label>
+        <select class="form-control"
+                id="idTrimestre"
+                [formControlName]="'trimestre'">
+          <option *ngFor="let x of elencoTrimestri" [ngValue]="x.schedeId" style="max-width:200px">
+            {{x.schedeId}} - {{x.titolo}}
+          </option>
+        </select>
+      </div>
+
+
+      <div class="col-sm-12 col-md-6 col-lg-6 " *ngIf="tipologiaSelezionata == '5'">
+        <label for="idTrimestre">
+          Anno:
+        </label>
+        <select class="form-control"
+                id="idTrimestre"
+                [formControlName]="'trimestre'">
+                <option *ngFor="let x of elencoAnni" [value]="x.idTrimestre" style="max-width:200px">
+                  {{x.anno}}
+                </option>
+        </select>
+      </div>
+
+      <div class="col-sm-12 col-md-3 col-lg-3 " *ngIf="contesto != 'ESTRAZIONE'">
+        <label for="statoCampione">
+          Stato campione:
+        </label>
+        <select class="form-control"
+                id="statoCampione"
+                [formControlName]="'statoCampione'">
+          <option *ngFor="let x of listaStatiCampione" [ngValue]="x.code" style="max-width:200px">
+            {{x.label}}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <button class="btn btn-primary" type="submit" [disabled]="formRicercCampione.invalid">
+        <i class="fa fa-search" style="margin-right: 10px"></i>
+        Ricerca campione
+      </button>
+    </div>
+  </form>
+</div>
+

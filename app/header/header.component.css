@@ -1,0 +1,10 @@
+.titolo-header {
+    font-family: Oswald;
+    font-size: 43px !important;
+    color: #e2001a;
+    font-weight: 700;
+    padding: 25px 0;
+    text-align: center;
+    text-transform: uppercase;
+
+}

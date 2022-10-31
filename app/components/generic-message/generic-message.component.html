@@ -1,0 +1,32 @@
+<app-backdrop></app-backdrop>
+
+<div class="modal animate__animated"
+     #modalRefHtml
+     id="exampleModalCenter"
+     role="dialog">
+  <div class="modal-dialog modal-dialog-centered"
+       [ngStyle]="modalConfig?.modal"
+       style="max-width: 50%"
+       role="document">
+    <div class="modal-content">
+      <div class="modal-header" [ngStyle]="modalConfig?.modalHeader.style">
+        <h5 class="modal-title" id="exampleModalLongTitle">
+          {{modalConfig.modalHeader.title}}
+        </h5>
+        <button *ngIf="modalConfig.closeable"
+                type="button"
+                style="outline: none"
+                (click)="closeMondal()"
+                class="close">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" [ngStyle]="modalConfig?.modalBody">
+
+        <ng-template appDynamicComponent></ng-template>
+
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,58 @@
+<div class="container-fluid text-center">
+  <div class="row align-items-center justify-content-center">
+    <div class="col-4">
+      <label class="font-weight-bold">
+        STATO:
+      </label>
+    </div>
+
+    <div class="col-6 border-left" style="border-color: lightgray">
+      <p class="m-0" #statoCodaEl
+         [ngClass]="{'text-primary': this.stato === STATO_ENUM.RICEVUTO,
+            'text-warning': this.stato === STATO_ENUM.AVVIATO,
+            'text-success': this.stato === STATO_ENUM.CONCLUSO,
+            'text-danger': this.stato === STATO_ENUM.ERRORE }">
+        {{this.stato}}
+      </p>
+    </div>
+
+  </div>
+
+  <div class="row align-items-center justify-content-center">
+    <div class="col-4">
+      <label class="font-weight-bold">
+        TEMPO:
+      </label>
+    </div>
+
+    <div class="col-6 border-left" style="border-color: lightgray">
+      <p class="m-0">
+        {{this.time}}
+      </p>
+    </div>
+  </div>
+
+  <div class="row align-items-center justify-content-center">
+    <div class="col-4">
+      <label class="font-weight-bold">
+        NOTE:
+      </label>
+    </div>
+
+    <div [ngClass]="'col-6 border-left ' + this.colorText" style="border-color: lightgray">
+      <p class="m-0" #noteEl>
+        {{this.note}}
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="border-top mt-3" style="border-color: lightgray">
+  <div class="row align-items-center justify-content-center mt-3">
+    <button type="button" class="btn btn-success shadow" (click)="downloadFile()"
+            [disabled]="stato !== STATO_ENUM.CONCLUSO">
+      <i class="fa fa-download mr-3"></i>
+      Download
+    </button>
+  </div>
+</div>

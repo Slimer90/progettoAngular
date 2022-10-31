@@ -1,0 +1,208 @@
+<ngb-alert *ngIf="message" [type]="typeError" [dismissible]="false">
+  <strong>
+    <i class="fa fa-exclamation-triangle"></i>
+  </strong>{{message}}
+</ngb-alert>
+
+<div class="container-fluid" *ngIf="jobState ==='ELENCO'">
+  <div class="card">
+    <div class="card-header">Filtri per la ricerca</div>
+
+    <div class="form-row" style="width:100%;padding:10px">
+      <div class="col-sm-12 col-lg-3 col-md-6 form-group">
+        <label>Data inizio</label>
+        <input type="date" [(ngModel)]="dataInizioRicerca" class="form-control" style="width:60%" pattern="dd/MM/yyyy">
+      </div>
+
+      <div class="col-sm-12 col-lg-3 col-md-6 form-group">
+        <label>Data fine</label>
+        <input type="date" [(ngModel)]="dataFineRicerca" class="form-control" style="width:60%">
+
+      </div>
+
+      <div class="col-sm-12 col-md-6 col-lg-4 ">
+        <label>Tipologia</label>
+        <select class="form-control" [(ngModel)]="tipologiaUniverso" style="width: 70%">
+          <option [ngValue]="" style="max-width:200px"></option>
+          <option *ngFor="let x of getTipologieUniverso()" [ngValue]="x.code" style="max-width:200px"> {{x.label}}
+          </option>
+        </select>
+      </div>
+
+
+      <div class="col-sm-12 col-lg-2 col-md-6 form-check">
+        <label>Parametri attivi</label>
+        <input type="checkbox" [(ngModel)]="soloAttivi" class="form-check" style="zoom: 1.5">
+
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <button class="btn btn-primary" (click)="elenco()">
+        <i class="fa fa-search" style="margin-right: 10px"></i>
+        Ricerca Parametri
+      </button>
+
+      <button class="btn btn-danger" style="margin-left: 10px" (click)="nuovo()">
+        <i class="fa fa-plus" style="margin-right: 10px"></i>
+        Crea Nuovo Parametro
+      </button>
+    </div>
+
+  </div>
+
+  <div class="card" *ngIf="elencoParametri.length>0">
+
+    <div class="card-header" style="text-align: center">Elenco Parametri trovati</div>
+
+    <table class="table  table-sm table-hover" style="width:100%">
+      <thead>
+      <tr>
+        <th>Nome</th>
+
+        <th>Campo di riferimento</th>
+
+        <th>Valore di default</th>
+
+        <th>Data Inizio</th>
+
+        <th>Data Fine</th>
+
+        <th>Unità di misura</th>
+
+        <th>Tipo</th>
+
+        <th></th>
+
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let x of elencoParametri">
+
+
+        <td>{{x.nome}}</td>
+
+        <td>{{x.nomeCampoRif}}</td>
+
+        <td>{{x.valoreDefault}}</td>
+
+        <td>{{x.dataInizio | date:'dd/MM/yyyy'}}</td>
+
+        <td>{{x.dataFine | date:'dd/MM/yyyy'}}</td>
+
+        <td>{{x.unitaMisura}}</td>
+
+        <td>{{decodificaTipo(x.tipo)}}</td>
+
+        <td>
+
+          <button class="btn btn-primary" style="margin-left:10px" (click)="modifica(x)">
+            <i class="fa fa-edit"></i>
+          </button>
+
+          <button class="btn btn-danger" style="margin-left:10px" (click)="confirmElimina(x)">
+            <i class="fa fa-trash"></i>
+          </button>
+
+        </td>
+
+      </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+
+</div>
+
+
+<div class="container-fluid" *ngIf="jobState === 'DETTAGLIO'">
+  <div class="card">
+    <div class="card-header">{{titoloDettaglio}}</div>
+
+
+    <div class="form-row" style="padding:10px">
+
+      <div class="col-sm-12 col-md-4 col-lg-4 form-group">
+        <label>Data inizio*</label>
+        <input type="date" [(ngModel)]="parametroSelezionato.dataInizio" class="form-control" style="width:60%"
+               name="dataInizio"
+               required>
+
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 form-group">
+        <label>Data fine</label>
+        <input type="date" [(ngModel)]="parametroSelezionato.dataFine" class="form-control" style="width:60%"
+               min="parametroSelezionato.dataInizio"
+               name="datafine">
+      </div>
+      <div class="col-sm-12 col-md-4 col-lg-4">
+        <label>Tipo</label>
+        <select class="form-control" [(ngModel)]="parametroSelezionato.tipo" name="tipo">
+
+          <option *ngFor="let x of getTipologieUniverso()" [ngValue]="x.code" style="max-width:200px"> {{x.label}}
+          </option>
+        </select>
+      </div>
+
+
+      <div class="col-sm-12 col-md-4 col-lg-4 form-group">
+        <label>Nome*</label>
+        <input type="text" [(ngModel)]="parametroSelezionato.nome" class="form-control" name="nome" style="width:60%">
+      </div>
+      <div class="col-sm-12 col-md-4 col-lg-4 form-group">
+        <label>Nome campo di riferimento</label>
+        <input type="text" [(ngModel)]="parametroSelezionato.nomeCampoRif" class="form-control" style="width:60%"
+               name="campoRif">
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 form-group">
+        <label>Unità di misura</label>
+        <select class="form-control" [(ngModel)]="parametroSelezionato.unitaMisura" name="listening">
+
+          <option *ngFor="let x of getUnitaMisura()" [ngValue]="x.value" style="max-width:200px"> {{x.label}}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 form-group">
+        <label>Valore di default*</label>
+        <input type="number" [(ngModel)]="parametroSelezionato.valoreDefault" class="form-control" style="width:60%"
+               name="valDef">
+
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 form-group">
+        <label>Valore minimo</label>
+        <input type="number" [(ngModel)]="parametroSelezionato.valoreMin" class="form-control" style="width:60%"
+               numbersOnly name="valMin">
+
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4 form-group">
+        <label>Valore massimo</label>
+        <input type="number" [(ngModel)]="parametroSelezionato.valoreMax" class="form-control" style="width:60%"
+               name="valMax"
+               numbersOnly>
+
+      </div>
+    </div>
+
+    <div class="card-footer">
+
+      <button class="btn btn-primary" style="float:left" (click)="salva()">
+        <i class="fa fa-save" style="margin-right: 10px"></i>
+        Salva
+      </button>
+
+      <button class="btn btn-danger" style="float:right" (click)="indietro()">
+        <i class="fa fa-arrow-left" style="margin-right: 10px"></i>
+        Annulla
+      </button>
+
+    </div>
+
+  </div>
+</div>
+

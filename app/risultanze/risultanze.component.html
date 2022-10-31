@@ -1,0 +1,80 @@
+<app-generic-message></app-generic-message>
+
+<div class="container-fluid">
+
+  <ngb-alert [type]="typeError" [dismissible]="false" *ngIf="message">
+    <strong>
+      <i class="fa fa-exclamation-triangle" style="margin-right: 10px"></i>
+    </strong>{{message}}
+  </ngb-alert>
+
+  <app-ricerca-campione [contesto]=contesto (emitRisultanze)="getListaCampioni($event)"></app-ricerca-campione>
+
+
+  <div class="card mt-4" *ngIf="listCampioni && listCampioni.length>0 ">
+    <!--   <div class="card" *ngIf="listCampioni && listCampioni.length>0 && !campioneSelezionato"> -->
+    <div class="card-header">Righe trovate</div>
+
+    <table class="table table-hover table-striped" [mfData]="listCampioni"
+           #mf="mfDataTable" [mfRowsOnPage]="5">
+      <thead>
+      <tr>
+        <th>Id</th>
+        <th>OI</th>
+        <th>Tipo Universo</th>
+        <th>Stato</th>
+
+        <th>Data creazione</th>
+        <th>Righe</th>
+        <th>Importo validato</th>
+        <th>Ultima Modifica</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let campione of mf.data">
+        <td>{{campione.id}}</td>
+        <td>{{campione.universo.codunorg}}</td>
+        <td>{{decodificaTipoUniverso(campione.universo.tipoUniverso) }}</td>
+        <td>{{decodificaStato(campione.stato)}}</td>
+
+        <td>{{campione.dataEstrazione | date: 'dd/MM/yyyy'}}</td>
+        <td>{{campione.totRigheCampione}}</td>
+        <td>{{campione.totImpValente | numberit}} €</td>
+        <td>{{campione.tmstModify | date: 'dd/MM/yyyy'}}</td>
+        <td>
+          <button class="btn btn-danger" title="Produci verbale" (click)="richiediNoteStampaVerbale(campione)"
+                  *ngIf="!(isProfiloAdg() && campione.stato!='CH')" style="margin-right: 10px">
+            <i class="fa fa-file-text-o"></i>
+          </button>
+          <a id="produciVerbale" download="Verbale.pdf" style="display:none;"></a>
+
+          <button class="btn btn-primary" title="Produci elenco Universo"
+                  (click)="produciElenco(campione.universo.id, tipoElencoEnum.UNIVERSO, 'ElencoUniverso' + campione.universo.id +'.xlsx')"
+                  style="margin-right: 10px; background-color: gray;border-color: gray;">
+            <i class="fa fa-file-excel-o"></i>
+          </button>
+
+          <button class="btn btn-primary" title="Produci elenco Campione"
+                  (click)="produciElenco(campione.id, tipoElencoEnum.CAMPIONE, 'ElencoCampione'+campione.id+'.xlsx')"
+                  style="margin-right: 10px">
+            <i class="fa fa-file-excel-o"></i>
+          </button>
+
+        </td>
+
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <td colspan="9">
+          <mfBootstrapPaginator [rowsOnPageSet]="[5,10,25]"></mfBootstrapPaginator>
+        </td>
+      </tr>
+      </tfoot>
+    </table>
+
+  </div>
+
+
+</div>

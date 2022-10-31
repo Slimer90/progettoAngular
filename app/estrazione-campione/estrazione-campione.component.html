@@ -1,0 +1,493 @@
+<div class="container-fluid" *ngIf="contesto === 'definiscicriteri'">
+
+  <ngb-alert [type]="typeError" [dismissible]="false" *ngIf="message">
+    <strong>
+      <i class="fa fa-exclamation-triangle" style="margin-right: 10px"></i>
+    </strong>
+    {{message}}
+  </ngb-alert>
+
+  <div class="card" *ngIf="!universoSelezionato">
+    <div class="card-header">Inserisci i parametri di ricerca dell'universo da campionare</div>
+
+    <form [formGroup]="formRicercaCampione" (ngSubmit)="ricercaUniverso()">
+      <div class="form-row" style="padding:10px">
+
+        <div class="col-sm-12 col-md-3 col-lg-3 ">
+          <label for="tipoUniverso">
+            Tipologia:<sup class="text-danger"
+                           [style.font-size]="'15px'"
+                           [style.font-weight]="'bold'">*</sup>
+          </label>
+          <select class="form-control"
+                  id="tipoUniverso" [(ngModel)]="tipologiaSelezionata"
+                  [formControlName]="'tipologiaUniverso'">
+            <option *ngFor="let x of listaTipiUniverso" [ngValue]="x.code" style="max-width:200px">
+              {{x.label}}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6 " *ngIf="tipologiaSelezionata != '5'" >
+          <label for="idTrimestre">
+            Trimestre:<sup class="text-danger"
+                           [style.font-size]="'15px'"
+                           [style.font-weight]="'bold'">*</sup>
+          </label>
+          <select class="form-control"
+                  id="idTrimestre"
+                  [formControlName]="'trimestre'">
+            <option *ngFor="let x of elencoTrimestri" [ngValue]="x.schedeId" style="max-width:200px">
+              {{x.schedeId}} - {{x.titolo}}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6 " *ngIf="tipologiaSelezionata == '5'" >
+          <label for="idTrimestre">
+            Anno:<sup class="text-danger"
+                           [style.font-size]="'15px'"
+                           [style.font-weight]="'bold'">*</sup>
+          </label>
+          <select class="form-control"
+                  id="idAnno"
+                  [formControlName]="'trimestre'">
+            <option *ngFor="let x of elencoAnni" [ngValue]="x.idTrimestre" style="max-width:200px">
+              {{x.anno}}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-sm-12 col-lg-3 col-md-3" *ngIf="listaUniversi">
+
+          <label for="idUniversoSelezionato">
+            Universo:<sup class="text-danger"
+                          [style.font-size]="'15px'"
+                          [style.font-weight]="'bold'">*</sup>
+          </label>
+          <select class="form-control"
+                  id="idUniversoSelezionato"
+                  [formControlName]="'idUniversoSelezionato'">
+            <option *ngFor="let x of listaUniversi" [ngValue]="x.id" style="max-width:200px">
+              Universo {{x.id}}
+            </option>
+          </select>
+
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button class="btn btn-primary" type="submit"
+                [disabled]="!(formRicercaCampione.get('tipologiaUniverso').valid && formRicercaCampione.get('trimestre').valid)"
+                style="margin-right: 10px">
+          <i class="fa fa-search"></i>
+          Ricerca universo
+        </button>
+
+        <button class="btn btn-danger"
+                type="button"
+                *ngIf="listaUniversi"
+                [disabled]="formRicercaCampione.invalid"
+                (click)="selezionaUniverso()">
+          <i class="fa fa-check"></i>
+          Conferma universo
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+
+  <div class="card" *ngIf="universoSelezionato">
+
+    <div class="card-header">Crea Campione</div>
+
+
+    <div class="form-row" style="padding:10px">
+      <div class="col-sm-12 col-md-12 col-lg-12">
+        <h5>Universo selezionato:</h5>
+      </div>
+
+      <div class="col-sm-12 col-md-4 col-lg-4">
+        <label for="tipoUniversoCreaCampione">
+          Tipo
+        </label>
+        <input type="text" id="tipoUniversoCreaCampione" readonly
+               [value]="decodificaTipoUniverso(universoSelezionato.tipoUniverso)"
+               class="form-control">
+
+      </div>
+
+      <div class="col-sm-12 col-md-6 col-lg-6 ">
+        <label for="idTrimestreCreaCampione">
+          Trimestre
+        </label>
+        <select class="form-control" id="idTrimestreCreaCampione"
+                [ngModel]="formRicercaCampione.controls.trimestre.value" disabled>
+          <option *ngFor="let x of elencoTrimestri" [ngValue]="x.schedeId" style="max-width:200px">
+            {{x.schedeId}} - {{x.titolo}}
+          </option>
+        </select>
+      </div>
+
+    </div>
+
+    <hr/>
+
+    <ngb-alert type="warning" [dismissible]="false" *ngIf="elencoParametri && elencoParametri.length === 0">
+      <strong>
+        <i class="fa fa-exclamation-triangle" style="margin-right: 10px"></i>
+      </strong> Nessun parametro trovato per il tipo {{decodificaTipoUniverso(universoSelezionato.tipoUniverso)}}
+    </ngb-alert>
+
+    <ng-container *ngIf="elencoCriteriCampionamento.length > 0">
+      <h5 style="padding:10px">
+        Criteri di campionamento:
+      </h5>
+
+      <table class="table table-striped table-hover" style="width:100%" [mfData]="elencoCriteriCampionamento"
+             #mf="mfDataTable" [mfRowsOnPage]="5">
+        <thead>
+        <tr>
+          <th>Valore</th>
+          <th>Nome</th>
+          <th>Campo di riferimento</th>
+          <th>Valore minimo</th>
+          <th>Valore massimo</th>
+          <th>Data Inizio</th>
+          <th>Data Fine</th>
+          <th>Unità di misura</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let criterio of mf.data">
+          <td>{{criterio.parametro.valoreDefault}}</td>
+          <td>{{criterio.parametro.nome}}</td>
+          <td>{{criterio.parametro.nomeCampoRif}}</td>
+          <td>{{criterio.parametro.valoreMin}}</td>
+          <td>{{criterio.parametro.valoreMax}}</td>
+          <td>{{criterio.parametro.dataInizio | date:'dd/MM/yyyy'}}</td>
+          <td>{{criterio.parametro.dataFine | date:'dd/MM/yyyy'}}</td>
+          <td>{{criterio.parametro.unitaMisura}}</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <div class="card-footer">
+        <button class="btn btn-danger" *ngIf="universoSelezionato" style="margin-right: 10px" (click)="salva(false)">
+          <i class="fa fa-save"></i>
+          Salva campione
+        </button>
+
+        <button class="btn btn-danger" *ngIf="universoSelezionato && idCampioneSelezionato >0"
+                style="margin-right: 10px"
+                (click)="vaiEstrazioneCampione()">
+          <i class="fa fa-filter"></i>
+          Vai a dettaglio campione
+        </button>
+
+        <button class="btn btn-primary" style="float: right;" (click)="annullaCreaCampione()">
+          <i class="fa fa-times"></i>
+          Annulla
+        </button>
+      </div>
+    </ng-container>
+
+  </div>
+</div>
+
+
+<div class="container-fluid" *ngIf="contesto === 'estrairighe'">
+
+
+  <ngb-alert [type]="typeError" [dismissible]="false" *ngIf="message">
+    <strong>
+      <i class="fa fa-exclamation-triangle" style="margin-right: 10px"></i>
+    </strong>{{message}}
+  </ngb-alert>
+
+  <div class="card" *ngIf="!campioneSelezionato" style="border:0">
+    <app-ricerca-campione [contesto]=contestoRicerca (emitEstrazione)="getListaCampioni($event)"
+                          *ngIf="!campioneSelezionato">
+    </app-ricerca-campione>
+
+
+    <div class="card-footer" *ngIf="listCampioni && listCampioni.length>0 " style="text-align: center">
+      <hr/>
+      <strong>Elenco campioni trovati</strong>
+
+    </div>
+
+    <table *ngIf="listCampioni && listCampioni.length>0" class="table table-hover table-striped" [mfData]="listCampioni"
+           #mf="mfDataTable"
+           [mfRowsOnPage]="5">
+
+      <thead>
+      <tr>
+        <th>Id</th>
+        <th>OI</th>
+        <th>Data estrazione</th>
+        <th>Stato</th>
+        <th>Totale righe</th>
+        <th>Importo finanziato</th>
+        <th>Importo giustificativo</th>
+        <th>Importo validato (Ente)</th>
+        <th>Importo validato (OI)</th>
+        <th>Aggiungi al campione</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let x of mf.data">
+        <td>{{x.id}}</td>
+        <td>{{x.universo.codunorg}}</td>
+        <td>{{x.dataEstrazione | date: 'dd/MM/yyyy'}}</td>
+        <td>{{x.stato}}</td>
+        <td>{{x.totRigheCampione}}</td>
+        <td>{{x.totImpFinanziato | number:'0.2-6'}} €</td>
+        <td>{{x.totImpGiustificativo | number:'0.2-6'}} €</td>
+        <td>{{x.totImpValente | number:'0.2-6'}} €</td>
+        <td>{{x.totImpValOi | number:'0.2-6'}} €</td>
+        <td>
+          <button class="btn btn-primary" (click)="selezionaCampione(x)">
+            <i class="fa fa-search"></i>
+          </button>
+        </td>
+
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <td colspan="9">
+          <mfBootstrapPaginator [rowsOnPageSet]="[5,10,25]"></mfBootstrapPaginator>
+        </td>
+      </tr>
+      </tfoot>
+
+    </table>
+
+  </div>
+
+
+  <div class="card" *ngIf="campioneSelezionato">
+
+    <div class="card-header">Dettagli campione numero {{campioneSelezionato.id}}</div>
+
+    <div class="card-body">
+      <div class="form-row" style="padding:10px">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <button class="btn btn-danger"
+                  style="float: left;margin-right: 10px"
+                  (click)="confirmElimina()"
+                  *ngIf="!campioneSelezionato.dataEstrazione && !isProfiloAdg()">
+            <i class="fa fa-trash" style="margin-right: 10px"></i>
+            Elimina
+          </button>
+
+          <button style="float: right"
+                  class="btn btn-primary"
+                  (click)="annulla()">
+            <i class="fa fa-times" style="margin-right: 10px"></i>
+            Annulla
+          </button>
+        </div>
+      </div>
+
+      <hr/>
+
+      <div class="form-row" style="padding:10px">
+
+        <div class="col-sm-12 col-md-6 col-lg-6">
+          <label>Data estrazione</label>
+          <input type="date"
+                 readonly
+                 [value]="campioneSelezionato.dataEstrazione"
+                 class="form-control">
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6">
+          <label>Stato</label>
+          <input type="text"
+                 readonly
+                 [value]="decodificaStato(campioneSelezionato.stato)"
+                 class="form-control">
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6">
+          <label>Importo finanziato</label>
+          <input type="text"
+                 readonly
+                 [value]="(campioneSelezionato.totImpFinanziato  | numberit) + ' €'"
+                 class="form-control">
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6">
+          <label>Importo giustificativo</label>
+          <input type="text"
+                 readonly
+                 [value]="(campioneSelezionato.totImpGiustificativo  | numberit) + ' €'"
+                 class="form-control">
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6">
+          <label>Importo validato (Ente)</label>
+          <input type="text"
+                 readonly
+                 [value]="(campioneSelezionato.totImpValente  | numberit) + ' €'"
+                 class="form-control">
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6">
+          <label>Importo validato (Oi)</label>
+          <input type="text"
+                 readonly
+                 [value]="(campioneSelezionato.totImpValOi  | numberit) + ' €'"
+                 class="form-control">
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6" *ngIf="campioneSelezionato.universo.tipoUniverso === '1'">
+          <label>Num. righe sopra soglia</label>
+          <input type="text"
+                 readonly
+                 [value]="campioneSelezionato.totRigheSoprasoglia"
+                 class="form-control">
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6" *ngIf="campioneSelezionato.universo.tipoUniverso === '1'">
+          <label>Num. righe sotto soglia</label>
+          <input type="text"
+                 readonly
+                 [value]="campioneSelezionato.totRigheSottosoglia"
+                 class="form-control">
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6" *ngIf="campioneSelezionato.universo.tipoUniverso === '1'">
+          <label>Num. righe importo negativo</label>
+          <input type="text"
+                 readonly
+                 [value]="campioneSelezionato.totRigheNegativo"
+                 class="form-control">
+        </div>
+
+        <div class="col-sm-12 col-md-4 col-lg-4" *ngIf="campioneSelezionato.universo.tipoUniverso === '2'">
+          <label>N. classe rischio 1</label>
+          <input type="text"
+                 readonly
+                 [value]="campioneSelezionato.righeClasse1"
+                 class="form-control">
+        </div>
+
+        <div class="col-sm-12 col-md-4 col-lg-4" *ngIf="campioneSelezionato.universo.tipoUniverso === '2'">
+          <label>N. classe rischio 2</label>
+          <input type="text"
+                 readonly
+                 [value]="campioneSelezionato.righeClasse2"
+                 class="form-control">
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4" *ngIf="campioneSelezionato.universo.tipoUniverso === '2'">
+          <label>N. classe rischio 3</label>
+          <input type="text"
+                 readonly [value]="campioneSelezionato.righeClasse3"
+                 class="form-control">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="card-header">
+            <strong>Criteri di campionamento</strong>
+          </div>
+
+          <table class="table  table-sm table-hover table-striped" style="width:100%;"
+                 [mfData]="listCriteriCampionamento"
+                 [mfRowsOnPage]="5"
+                 #mf="mfDataTable">
+
+            <thead>
+            <tr>
+              <th>Valore Soglia</th>
+              <th>Parametro</th>
+              <th>Unità di misura</th>
+              <th>Operatore</th>
+              <th>Campo riferito</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let criterio of mf.data">
+
+              <td>{{criterio.valoreSoglia}}</td>
+              <td>{{criterio.parametro.nome}}</td>
+              <td>{{criterio.parametro.unitaMisura}}</td>
+              <td>{{criterio.operatore}}</td>
+              <td>{{criterio.parametro.nomeCampoRif}}</td>
+
+            </tr>
+            </tbody>
+
+            <tfoot>
+            <tr>
+              <td colspan="4">
+                <mfBootstrapPaginator [rowsOnPageSet]="[5,10,25]"></mfBootstrapPaginator>
+              </td>
+            </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12" *ngIf="campioneSelezionato.dataEstrazione">
+
+          <hr/>
+
+          <div class="card-header" style="text-align:center; ">
+            <strong>Righe estratte dal campione</strong>
+          </div>
+
+          <table class="table  table-sm table-hover table-striped" style="width:100%;" [mfData]="listRigheCampione"
+                 #mf="mfDataTable"
+                 [mfRowsOnPage]="5">
+
+            <thead>
+            <tr>
+              <th>Ente</th>
+              <th>Tipo affidamento</th>
+              <th>Importo finanziato</th>
+              <th>Importo giustificativo</th>
+              <th>Importo validato (Ente)</th>
+              <th>Importo validato (OI)</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let x of mf.data">
+
+              <td>{{x.denominazioneEnte}} - {{x.piva}}</td>
+              <td>{{x.tipoAffidamento}}</td>
+              <td>{{x.importoFinanziato | numberit}} €</td>
+              <td>{{x.importoGiustificativo | numberit}} €</td>
+              <td>{{x.importoValEnte | numberit}} €</td>
+              <td>{{x.importoValOi | numberit}} €</td>
+
+            </tr>
+            </tbody>
+
+            <tfoot>
+            <td colspan="4">
+              <mfBootstrapPaginator [rowsOnPageSet]="[5,10,25]"></mfBootstrapPaginator>
+            </td>
+            </tfoot>
+          </table>
+
+        </div>
+
+
+      </div>
+
+    </div>
+    <div class="card-footer" *ngIf="!campioneSelezionato.dataEstrazione && !isProfiloAdg()">
+      <button class="btn btn-primary" (click)="estraiRigheCampione()">
+        <i class="fa fa-check"></i>
+        Estrai righe
+      </button>
+    </div>
+  </div>
+</div>

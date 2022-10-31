@@ -1,0 +1,9 @@
+{
+  "baseUrlService": "https://test.servizi.toscana.it/RTstaging",
+  "logoutArpa": "https://pdastage.tix.it/pda/arpa/logout",
+  "jwtContextPath" : "/cochise-jwt/lavoro/controlli",
+  "baseUrlAuthService" : "https://test.servizi.toscana.it/RTstaging/cochise-public/authentication",
+  "appSecret" : "bbd6f987-93ef-46cb-b8e9-b47e5a81ca5f",
+  "X_rtsysid_app" : "CAMPIONAMENTO_FSE3"
+
+}

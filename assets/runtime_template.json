@@ -1,0 +1,8 @@
+{
+  "jwtContextPath": "${jwt_context_path}",
+  "baseUrlService": "${base_url_service}",
+  "logoutArpa": "${logout_Arpa}",
+  "baseUrlAuthService": "${base_url_auth}",
+  "appSecret" : "bbd6f987-93ef-46cb-b8e9-b47e5a81ca5f",
+  "X_rtsysid_app" : "CAMPIONAMENTO_FSE3"
+}

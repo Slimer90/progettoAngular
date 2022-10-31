@@ -1,0 +1,41 @@
+<div class="container-fluid">
+
+  <ngb-alert [type]="typeMessage" [dismissible]="false" *ngIf="message">
+    <strong>
+      <i class="fa fa-exclamation-triangle" style="margin-right: 10px"></i>
+    </strong>{{message}}
+  </ngb-alert>
+
+  <div class="card">
+    <div class="card-header">Seleziona il profilo</div>
+
+    <div class="form-row" style="padding: 10px">
+      <div class="col-sm-12 col-md-6 col-lg-6 ">
+        <label>
+          Profilo:<sup class="text-danger"
+                       [style.font-size]="'15px'"
+                       [style.font-wight]="'bold'">*</sup>
+        </label>
+        <select class="form-control" [formControl]="profiloSelezionato">
+          <option [ngValue]="null" disabled>--Seleziona--</option>
+          <option *ngFor="let x of codUnorgs" [ngValue]="x" style="max-width:200px"> {{x.codice}} - {{x.descrizione}}
+            ( {{x.cod}} )
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <button class="btn btn-danger"
+              (click)="conferma()"
+              [disabled]="profiloSelezionato.invalid"
+              [style.cursor]="profiloSelezionato.invalid ? 'not-allowed' : 'pointer'">
+        <i class="fa fa-check" style="margin-right: 10px"> </i>Conferma
+      </button>
+
+    </div>
+
+  </div>
+
+
+</div>
